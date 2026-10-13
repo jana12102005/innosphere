@@ -16,7 +16,8 @@ DEBUG = os.environ.get("DEBUG", "false").lower() == "true"
 # AIVEN MYSQL CONFIG
 # =========================
 MYSQL_HOST     = os.environ.get("MYSQL_HOST")
-MYSQL_PORT     = int(os.environ.get("MYSQL_PORT"))
+MYSQL_PORT_RAW = os.environ.get("MYSQL_PORT")
+MYSQL_PORT     = int(MYSQL_PORT_RAW) if MYSQL_PORT_RAW and MYSQL_PORT_RAW.strip() else 14019
 MYSQL_DB       = os.environ.get("MYSQL_DB")
 MYSQL_USER     = os.environ.get("MYSQL_USER")
 MYSQL_PASSWORD = os.environ.get("MYSQL_PASSWORD")

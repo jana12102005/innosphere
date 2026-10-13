@@ -32,7 +32,10 @@ def create_app():
 
     # Keep cert output dir for local PDF caching (optional)
     app.config["UPLOAD_PATHS"] = UPLOAD_PATHS
-    os.makedirs(UPLOAD_PATHS["certs"], exist_ok=True)
+    try:
+        os.makedirs(UPLOAD_PATHS["certs"], exist_ok=True)
+    except OSError:
+        pass
 
     db.init_app(app)
     init_db(app)
