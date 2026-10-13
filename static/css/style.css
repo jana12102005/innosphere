@@ -107,40 +107,46 @@ p  { color: var(--slate); font-size: 15px; line-height: 1.78; }
     position: sticky;
     top: 0;
     z-index: 200;
-    background: rgba(255,255,255,.96);
-    backdrop-filter: blur(14px);
-    border-bottom: 1px solid rgba(14,31,68,.07);
-    box-shadow: 0 1px 18px rgba(14,31,68,.06);
-    padding: 0 32px;
+    background: rgba(255,255,255,.98);
+    backdrop-filter: blur(16px);
+    border-bottom: 1px solid rgba(14,31,68,.1);
+    box-shadow: 0 4px 24px rgba(14,31,68,.08);
+    padding: 0 40px;
 }
 
 .navbar .nav-container {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    height: 68px;
-    max-width: 1200px;
+    height: 94px;
+    max-width: 1380px;
     margin: auto;
 }
 
 .navbar img.nav-logo {
-    height: 46px;
+    height: 68px;
+    max-height: 72px;
     width: auto;
     object-fit: contain;
+    transition: transform var(--t) var(--ease);
+}
+
+.navbar img.nav-logo:hover {
+    transform: scale(1.04);
 }
 
 .navbar ul.nav-links {
     list-style: none;
     display: flex;
     align-items: center;
-    gap: 2px;
+    gap: 4px;
 }
 
 .navbar ul.nav-links li a {
     display: block;
-    padding: 7px 13px;
+    padding: 9px 15px;
     border-radius: var(--r-sm);
-    font-size: 13.5px;
+    font-size: 14.5px;
     font-weight: 500;
     color: var(--navy);
     letter-spacing: .01em;

@@ -28,18 +28,23 @@ MYSQL_PASSWORD = os.environ.get("MYSQL_PASSWORD")
 BASE_DIR     = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 CA_CERT_PATH = os.path.join(BASE_DIR, "backend", "ca.pem")
 
-SQLALCHEMY_DATABASE_URI = (
-    f"mysql+pymysql://{MYSQL_USER}:{MYSQL_PASSWORD}"
-    f"@{MYSQL_HOST}:{MYSQL_PORT}/{MYSQL_DB}"
-)
+SQLALCHEMY_DATABASE_URI = os.environ.get("SQLALCHEMY_DATABASE_URI")
+if not SQLALCHEMY_DATABASE_URI:
+    SQLALCHEMY_DATABASE_URI = (
+        f"mysql+pymysql://{MYSQL_USER}:{MYSQL_PASSWORD}"
+        f"@{MYSQL_HOST}:{MYSQL_PORT}/{MYSQL_DB}"
+    )
 
-SQLALCHEMY_ENGINE_OPTIONS = {
-    "connect_args": {
-        "ssl": {
-            "ca": CA_CERT_PATH
+if "mysql" in SQLALCHEMY_DATABASE_URI:
+    SQLALCHEMY_ENGINE_OPTIONS = {
+        "connect_args": {
+            "ssl": {
+                "ca": CA_CERT_PATH
+            }
         }
     }
-}
+else:
+    SQLALCHEMY_ENGINE_OPTIONS = {}
 
 SQLALCHEMY_TRACK_MODIFICATIONS = False
 

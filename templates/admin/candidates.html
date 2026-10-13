@@ -2,121 +2,251 @@
 {% block title %}Candidates | Admin{% endblock %}
 
 {% block content %}
-<h2 class="mb-4">Registered Candidates</h2>
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Registered Candidates</h2>
+</div>
 
-<div class="card p-4">
+<!-- Category Tabs -->
+<div class="candidate-tabs mb-4">
+    <button class="tab-btn active" onclick="showTab('pending-tab', this)">
+        📋 Registered Candidates <span class="badge bg-primary text-white ms-1">{{ pending_candidates|length }}</span>
+    </button>
+    {% if invited_candidates %}
+    <button class="tab-btn" onclick="showTab('invited-tab', this)">
+        📩 Invited for Interview <span class="badge bg-warning text-dark ms-1">{{ invited_candidates|length }}</span>
+    </button>
+    {% endif %}
+    <button class="tab-btn" onclick="showTab('selected-tab', this)">
+        ✅ Selected Candidates <span class="badge bg-success text-white ms-1">{{ selected_candidates|length }}</span>
+    </button>
+    <button class="tab-btn" onclick="showTab('rejected-tab', this)">
+        ❌ Rejected Candidates <span class="badge bg-danger text-white ms-1">{{ rejected_candidates|length }}</span>
+    </button>
+</div>
 
-    {% if candidates %}
+<!-- TAB 1: PENDING / REGISTERED CANDIDATES -->
+<div id="pending-tab" class="tab-content card p-4 shadow-sm mb-4">
+    <h3 class="h4 mb-3 text-primary">Pending Registered Candidates</h3>
+    {% if pending_candidates %}
     <div class="table-responsive">
-        <table class="table table-bordered table-striped align-middle">
-            <thead class="table-light">
+        <table class="table table-bordered table-hover align-middle">
+            <thead class="table-dark">
                 <tr>
                     <th>Name</th>
                     <th>Email</th>
                     <th>Department</th>
                     <th>College</th>
                     <th>Reason</th>
-                    <th>Status</th>
-                    <th style="width:260px;">Actions</th>
+                    <th style="min-width: 320px;">Actions</th>
                 </tr>
             </thead>
             <tbody>
-
-            {% for c in candidates %}
+            {% for c in pending_candidates %}
                 <tr>
-                    <td>{{ c.name }}</td>
-                    <td>{{ c.email }}</td>
-                    <td>{{ c.department }}</td>
-                    <td>{{ c.college }}</td>
-                    <td style="max-width:300px;">{{ c.reason }}</td>
-
-                    <!-- STATUS -->
+                    <td class="fw-bold">{{ c.name }}</td>
+                    <td><a href="mailto:{{ c.email }}">{{ c.email }}</a></td>
+                    <td>{{ c.department or 'N/A' }}</td>
+                    <td>{{ c.college or 'N/A' }}</td>
+                    <td style="max-width:280px; font-size: 13.5px;">{{ c.reason }}</td>
                     <td>
-                        {% if c.status == "pending" %}
-                            <span class="badge bg-secondary">Pending</span>
-                        {% elif c.status == "invited" %}
-                            <span class="badge bg-warning text-dark">Invited</span>
-                        {% elif c.status == "accepted" %}
-                            <span class="badge bg-success">Accepted</span>
-                        {% elif c.status == "rejected" %}
-                            <span class="badge bg-danger">Rejected</span>
-                        {% endif %}
-                    </td>
+                        <div class="d-flex flex-column gap-2">
+                            <!-- INVITE WITH DATE -->
+                            <form method="POST" class="d-flex gap-2">
+                                <input type="hidden" name="invite_id" value="{{ c.id }}">
+                                <input
+                                    type="date"
+                                    name="interview_date"
+                                    class="form-control form-control-sm"
+                                    required
+                                >
+                                <button type="submit" class="btn btn-sm btn-warning text-dark text-nowrap fw-semibold">
+                                    📩 Invite
+                                </button>
+                            </form>
 
-                    <!-- ACTIONS -->
-                    <td>
+                            <div class="d-flex gap-2">
+                                <!-- DIRECT SELECT -->
+                                <form method="POST" class="w-50">
+                                    <input type="hidden" name="direct_select_id" value="{{ c.id }}">
+                                    <button type="submit" class="btn btn-sm btn-success w-100 fw-semibold">
+                                        ⚡ Direct Select
+                                    </button>
+                                </form>
 
-                        <!-- PENDING -->
-                        {% if c.status == "pending" %}
-                        <form method="POST" class="d-inline">
-                            <input type="hidden" name="invite_id" value="{{ c.id }}">
-                            <input
-                                type="date"
-                                name="interview_date"
-                                class="form-control form-control-sm mb-1"
-                                required
-                            >
-                            <button class="btn btn-sm btn-success w-100 mb-1">
-                                Invite
-                            </button>
-                        </form>
-
-                        <form method="POST" class="d-inline">
-                            <input type="hidden" name="reject_id" value="{{ c.id }}">
-                            <button class="btn btn-sm btn-danger w-100">
-                                Reject
-                            </button>
-                        </form>
-                        {% endif %}
-
-                        <!-- INVITED -->
-                        {% if c.status == "invited" %}
-                        <form method="POST" class="d-inline">
-                            <input type="hidden" name="accept_id" value="{{ c.id }}">
-                            <button class="btn btn-sm btn-primary w-100 mb-1">
-                                Accept & Add to Team
-                            </button>
-                        </form>
-
-                        <form method="POST" class="d-inline">
-                            <input type="hidden" name="reject_id" value="{{ c.id }}">
-                            <button class="btn btn-sm btn-danger w-100">
-                                Reject
-                            </button>
-                        </form>
-
-                        {% if c.interview_date %}
-                        <small class="text-muted d-block mt-1">
-                            Interview: {{ c.interview_date }}
-                        </small>
-                        {% endif %}
-                        {% endif %}
-
-                        <!-- ACCEPTED -->
-                        {% if c.status == "accepted" %}
-                            <span class="text-success fw-bold">
-                                Added to Team
-                            </span>
-                        {% endif %}
-
-                        <!-- REJECTED -->
-                        {% if c.status == "rejected" %}
-                            <span class="text-muted">
-                                Finalized
-                            </span>
-                        {% endif %}
-
+                                <!-- REJECT -->
+                                <form method="POST" class="w-50">
+                                    <input type="hidden" name="reject_id" value="{{ c.id }}">
+                                    <button type="submit" class="btn btn-sm btn-danger w-100 fw-semibold" onclick="return confirm('Reject this candidate?')">
+                                        ❌ Reject
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
                     </td>
                 </tr>
             {% endfor %}
-
             </tbody>
         </table>
     </div>
     {% else %}
-        <p class="text-muted mb-0">No candidates found.</p>
+        <p class="text-muted mb-0 py-3 text-center">No pending registered candidates at the moment.</p>
     {% endif %}
-
 </div>
+
+<!-- TAB 2: INVITED CANDIDATES (IF ANY) -->
+{% if invited_candidates %}
+<div id="invited-tab" class="tab-content card p-4 shadow-sm mb-4" style="display:none;">
+    <h3 class="h4 mb-3 text-warning">Invited for Interview</h3>
+    <div class="table-responsive">
+        <table class="table table-bordered table-hover align-middle">
+            <thead class="table-dark">
+                <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Department</th>
+                    <th>Interview Date</th>
+                    <th style="min-width: 220px;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for c in invited_candidates %}
+                <tr>
+                    <td class="fw-bold">{{ c.name }}</td>
+                    <td>{{ c.email }}</td>
+                    <td>{{ c.department }}</td>
+                    <td><span class="badge bg-warning text-dark">{{ c.interview_date }}</span></td>
+                    <td>
+                        <div class="d-flex gap-2">
+                            <form method="POST" class="w-50">
+                                <input type="hidden" name="accept_id" value="{{ c.id }}">
+                                <button type="submit" class="btn btn-sm btn-success w-100 fw-semibold">
+                                    ✅ Accept & Add
+                                </button>
+                            </form>
+
+                            <form method="POST" class="w-50">
+                                <input type="hidden" name="reject_id" value="{{ c.id }}">
+                                <button type="submit" class="btn btn-sm btn-danger w-100 fw-semibold" onclick="return confirm('Reject candidate?')">
+                                    ❌ Reject
+                                </button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endif %}
+
+<!-- TAB 3: SELECTED CANDIDATES -->
+<div id="selected-tab" class="tab-content card p-4 shadow-sm mb-4" style="display:none;">
+    <h3 class="h4 mb-3 text-success">Selected Candidates</h3>
+    {% if selected_candidates %}
+    <div class="table-responsive">
+        <table class="table table-bordered table-hover align-middle">
+            <thead class="table-dark">
+                <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Department</th>
+                    <th>College</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for c in selected_candidates %}
+                <tr>
+                    <td class="fw-bold">{{ c.name }}</td>
+                    <td>{{ c.email }}</td>
+                    <td>{{ c.department }}</td>
+                    <td>{{ c.college }}</td>
+                    <td>
+                        <span class="badge bg-success">
+                            ✓ Added to Team
+                        </span>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+        <p class="text-muted mb-0 py-3 text-center">No selected candidates yet.</p>
+    {% endif %}
+</div>
+
+<!-- TAB 4: REJECTED CANDIDATES -->
+<div id="rejected-tab" class="tab-content card p-4 shadow-sm mb-4" style="display:none;">
+    <h3 class="h4 mb-3 text-danger">Rejected Candidates</h3>
+    {% if rejected_candidates %}
+    <div class="table-responsive">
+        <table class="table table-bordered table-hover align-middle">
+            <thead class="table-dark">
+                <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Department</th>
+                    <th>College</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for c in rejected_candidates %}
+                <tr>
+                    <td class="fw-bold text-muted">{{ c.name }}</td>
+                    <td>{{ c.email }}</td>
+                    <td>{{ c.department }}</td>
+                    <td>{{ c.college }}</td>
+                    <td>
+                        <span class="badge bg-secondary">
+                            Rejected
+                        </span>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+        <p class="text-muted mb-0 py-3 text-center">No rejected candidates.</p>
+    {% endif %}
+</div>
+
+<style>
+.candidate-tabs {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    border-bottom: 2px solid rgba(14,31,68,.1);
+    padding-bottom: 12px;
+}
+.tab-btn {
+    padding: 10px 18px;
+    background: #f4f0e8;
+    color: #1a3260;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    border: 1px solid rgba(14,31,68,.1);
+    transition: all 0.2s ease;
+    font-size: 14px;
+}
+.tab-btn.active, .tab-btn:hover {
+    background: #0e1f44;
+    color: #ffffff;
+    border-color: #0e1f44;
+}
+</style>
+
+<script>
+function showTab(tabId, btnElement) {
+    document.querySelectorAll('.tab-content').forEach(el => el.style.display = 'none');
+    document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+    document.getElementById(tabId).style.display = 'block';
+    btnElement.classList.add('active');
+}
+</script>
 
 {% endblock %}

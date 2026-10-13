@@ -68,6 +68,40 @@ def admin_team():
                 msg = f"{m.name} moved to Alumni."
             return redirect(url_for("team.admin_team"))
 
+        # ── RESTORE FROM FORMER ───────────────────────
+        if action == "restore":
+            m = TeamMember.query.get(request.form.get("member_id"))
+            if m:
+                m.is_former = False
+                db.session.commit()
+                msg = f"{m.name} restored to Active Office Bearers."
+            return redirect(url_for("team.admin_team"))
+
+        # ── UPDATE OFFICE BEARER ─────────────────────
+        if action == "update_office":
+            m = TeamMember.query.get(request.form.get("member_id"))
+            if m:
+                m.name       = request.form.get("name",       m.name).strip()
+                m.role       = request.form.get("role",       m.role).strip()
+                m.department = request.form.get("department", m.department or "").strip()
+                m.college    = request.form.get("college",    m.college or "").strip()
+                m.batch      = request.form.get("batch",      m.batch or "").strip()
+                
+                image = request.files.get("image")
+                if image and image.filename:
+                    if m.cloudinary_public_id:
+                        try:
+                            delete_file(m.cloudinary_public_id, resource_type="image")
+                        except Exception:
+                            pass
+                    result                 = upload_file(image, folder=FOLDER, resource_type="image")
+                    m.image_file           = result["secure_url"]
+                    m.cloudinary_public_id = result["public_id"]
+
+                db.session.commit()
+                msg = f"Office bearer {m.name} updated."
+            return redirect(url_for("team.admin_team"))
+
         # ── ADD OFFICE BEARER ────────────────────────
         if action == "add_office":
             image = request.files.get("image")

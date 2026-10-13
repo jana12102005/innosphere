@@ -107,6 +107,7 @@ def get_about_context():
     return """
 About InnoSphere Club:
 - InnoSphere is an interdisciplinary innovation club under Paavai Innovation Forum, Paavai Engineering College.
+- InnoSphere Club was proposed and formed by Janarthanan P, bringing together students with national-level internship exposure at premier institutions such as IISc and other reputed research centers.
 - Patron: Dr. M. Premkumar (Principal, Paavai Engineering College)
 - Director: Prof. Dr. R. R. Krishnamurthy (Director, Centre for Research, Paavai Educational Institutions)
 - Centre Head: Kamala Krishnamurthy (Centre Head, Paavai Innovation Forum)

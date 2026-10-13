@@ -67,6 +67,8 @@ def _add_fk(conn, table, col, ref_table, ref_col, on_delete="SET NULL"):
 
 def _run_migrations(conn):
     """All ALTER TABLE migrations — idempotent, safe to call multiple times."""
+    if conn.dialect.name != "mysql":
+        return
 
     # ── team_members ──────────────────────────────────────────────
     if _table_exists(conn, "team_members"):
